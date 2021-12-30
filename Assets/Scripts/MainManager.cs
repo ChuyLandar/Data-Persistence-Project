@@ -9,8 +9,10 @@ public class MainManager : MonoBehaviour
     public Brick BrickPrefab;
     public int LineCount = 6;
     public Rigidbody Ball;
-
+    public Text HighScoreText;
     public Text ScoreText;
+    private string actualPlayerName;
+
     public GameObject GameOverText;
     
     private bool m_Started = false;
@@ -22,6 +24,19 @@ public class MainManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        actualPlayerName = PersistenceManager.Instance.PlayerName;
+
+        PersistenceManager.Instance.LoadHightScore();
+        string name = PersistenceManager.Instance.PlayerName;
+        int score = PersistenceManager.Instance.PlayerScore;
+
+        if(score == 0)
+        {
+            name = "";
+        }
+
+        HighScoreText.text = $"Best Score : {name} : {score}";
+
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -55,6 +70,16 @@ public class MainManager : MonoBehaviour
         }
         else if (m_GameOver)
         {
+            int highScore = PersistenceManager.Instance.PlayerScore;
+            string playerName = PersistenceManager.Instance.PlayerName;
+
+            if (m_Points > highScore)
+            {
+                HighScoreText.text = $"Best Score : {actualPlayerName} : {m_Points}";
+                PersistenceManager.Instance.PlayerScore = m_Points;
+                PersistenceManager.Instance.PlayerName = actualPlayerName;
+                PersistenceManager.Instance.SaveHighScore();
+            }
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
